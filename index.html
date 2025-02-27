@@ -21,38 +21,28 @@
             }).validarUsuario(usuario, senha);
         }
     </script>
-    <script type="module">
-  // Importa os módulos do Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Configuração do Firebase (substitua pelos seus dados do Firebase)
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
-    apiKey: "SUA-CHAVE-API",
-    authDomain: "SEU-PROJETO.firebaseapp.com",
-    projectId: "SEU-PROJETO",
-    storageBucket: "SEU-PROJETO.appspot.com",
-    messagingSenderId: "SEU-ID",
-    appId: "SUA-ID"
+    apiKey: "AIzaSyC80cnUTN5Tclnej8gG2godC4ekJnt5m9o",
+    authDomain: "validacaods.firebaseapp.com",
+    projectId: "validacaods",
+    storageBucket: "validacaods.firebasestorage.app",
+    messagingSenderId: "773528438416",
+    appId: "1:773528438416:web:562714951406695be3ba15",
+    measurementId: "G-NZE3B7P847"
   };
 
-  // Inicializa o Firebase
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  // Função de Login
-  window.login = function () {
-    var email = document.getElementById("usuario").value;
-    var senha = document.getElementById("senha").value;
-
-    signInWithEmailAndPassword(auth, email, senha)
-      .then((userCredential) => {
-        window.location.href = "relatorio.html"; // Redireciona após login bem-sucedido
-      })
-      .catch((error) => {
-        alert("Erro ao fazer login: " + error.message);
-      });
-  };
+  const analytics = getAnalytics(app);
 </script>
 
 </head>
