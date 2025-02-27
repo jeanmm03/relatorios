@@ -21,74 +21,92 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("login-form").classList.add("hidden");
+                document.getElementById("inventario").classList.remove("hidden");
+                limparCampos();
+            } else {
+                document.getElementById("login-form").classList.remove("hidden");
+                document.getElementById("inventario").classList.add("hidden");
+                document.getElementById("usuario").value = "";
+                document.getElementById("senha").value = "";
+            }
+        });
 
         window.login = async function () {
-            var usuario = document.getElementById("usuario").value;
-            var senha = document.getElementById("senha").value;
+            var usuario = document.getElementById("usuario").value.trim();
+            var senha = document.getElementById("senha").value.trim();
 
-            if (!usuario || !senha) {
-                alert("Preencha todos os campos!");
+            if (usuario === "" || senha === "") {
+                alert("Por favor, preencha todos os campos.");
                 return;
             }
 
             try {
                 await signInWithEmailAndPassword(auth, usuario, senha);
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("inventario").style.display = "block";
             } catch (error) {
                 alert("Erro ao fazer login: " + error.message);
             }
         };
 
-        window.enviarInventario = function () {
-            if (confirm("Tem certeza que deseja enviar o inventário?")) {
-                let dados = [];
-                document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
-                    let quantidadeFisica = row.cells[6].querySelector("input").value;
+        window.logout = async function () {
+            await signOut(auth);
+        };
 
-                    if (quantidadeFisica === "" || quantidadeFisica < 0 || isNaN(quantidadeFisica)) {
-                        alert("Preencha todos os campos corretamente! Use 0 se não houver item.");
-                        return;
-                    }
+        window.enviarInventario = async function () {
+            if (!confirm("Tem certeza que deseja enviar o inventário?")) return;
+            
+            let dados = [];
+            let camposValidos = true;
 
-                    let empresa = row.cells[0].innerText;
-                    let codigo = row.cells[1].innerText;
-                    let descricao = row.cells[2].innerText;
-                    let lote = row.cells[3].innerText;
-                    let tipoEstoque = row.cells[4].innerText;
-                    let quantidadeSistemica = row.cells[5].innerText;
+            document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
+                let quantidadeFisica = row.cells[6].querySelector("input").value.trim();
+                
+                if (quantidadeFisica === "" || isNaN(quantidadeFisica) || parseInt(quantidadeFisica) < 0) {
+                    alert("Preencha corretamente todas as quantidades físicas com números positivos.");
+                    camposValidos = false;
+                    return;
+                }
 
-                    dados.push({ empresa, codigo, descricao, lote, tipoEstoque, quantidadeSistemica, quantidadeFisica });
+                dados.push({
+                    empresa: row.cells[0].innerText,
+                    codigo: row.cells[1].innerText,
+                    descricao: row.cells[2].innerText,
+                    lote: row.cells[3].innerText,
+                    tipoEstoque: row.cells[4].innerText,
+                    quantidadeSistemica: row.cells[5].innerText,
+                    quantidadeFisica: parseInt(quantidadeFisica)
                 });
+            });
 
-                // Simulação de salvamento em CSV e envio de e-mail
+            if (!camposValidos) return;
+
+            try {
+                await addDoc(collection(db, "inventarios"), { dados, timestamp: new Date() });
                 alert("Inventário enviado com sucesso!");
-                console.log("Dados enviados:", JSON.stringify(dados));
-
-                // Após envio, sair do sistema
-                window.location.reload();
+                limparCampos();
+            } catch (error) {
+                alert("Erro ao enviar inventário: " + error.message);
             }
+        };
+
+        function limparCampos() {
+            document.querySelectorAll("#inventario-table tbody tr input").forEach(input => input.value = "");
+        }
+
+        window.validarInputNumerico = function (event) {
+            let value = event.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+            event.target.value = value;
         };
     </script>
 </head>
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
-    <h1 class="text-4xl text-white absolute top-10">INVENTÁRIO DE SANTA</h1>
-
-    <!-- Logo carregada do GitHub -->
-    <div class="absolute top-4 left-4">
-        <img src="https://github.com/jeanmm03/relatorios/raw/main/images.png" alt="Logo" width="150" height="100">
-    </div>
-
-    <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black">
-        <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
-        <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3">
-        <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4">
-        <button onclick="login()" class="w-full bg-black text-white py-2 rounded">Entrar</button>
-    </div>
-
-    <div id="inventario" class="hidden">
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
+    <div id="inventario" class="hidden bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
         <h1 class="text-3xl text-center mb-4">Inventário</h1>
-        <table id="inventario-table" class="table-auto w-full text-black bg-white p-4 rounded-lg">
+        <table id="inventario-table" class="table-fixed w-full text-black bg-white p-4 rounded-lg border">
             <thead>
                 <tr class="bg-gray-800 text-white">
                     <th class="p-2">Empresa</th>
@@ -108,7 +126,7 @@
                     <td class="p-2">Lote 1</td>
                     <td class="p-2">Normal</td>
                     <td class="p-2">100</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0"></td>
+                    <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
                 </tr>
                 <tr>
                     <td class="p-2">Empresa B</td>
@@ -117,12 +135,13 @@
                     <td class="p-2">Lote 2</td>
                     <td class="p-2">Reserva</td>
                     <td class="p-2">50</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0"></td>
+                    <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
                 </tr>
             </tbody>
         </table>
 
         <div class="flex justify-center mt-4">
+            <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2">Sair</button>
             <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Cancelar</button>
             <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
         </div>
