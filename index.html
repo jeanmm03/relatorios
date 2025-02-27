@@ -82,6 +82,13 @@
                 alert("Erro ao enviar inventário: " + error.message);
             }
         };
+
+        // Função para resetar os campos da tabela
+        window.resetCampos = function () {
+            document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
+                row.cells[6].querySelector("input").value = "";  // Limpa o campo "Quantidade Física"
+            });
+        };
     </script>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
@@ -135,7 +142,7 @@
 
         <div class="flex justify-center mt-4">
             <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2">Sair</button>
-            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Reset</button>
+            <button onclick="resetCampos()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Reset</button>
             <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
         </div>
     </div>
