@@ -22,18 +22,18 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+
+        let usuarioAtual = ""; 
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById("login-form").classList.add("hidden");
                 document.getElementById("inventario").classList.remove("hidden");
+                usuarioAtual = user.email.split('@')[0]; 
                 limparCampos();
             } else {
                 document.getElementById("login-form").classList.remove("hidden");
                 document.getElementById("inventario").classList.add("hidden");
-                document.getElementById("usuario").value = "";
-                document.getElementById("senha").value = "";
             }
         });
 
@@ -42,7 +42,7 @@
             var senha = document.getElementById("senha").value.trim();
 
             if (usuario === "" || senha === "") {
-                alert("Por favor, preencha todos os campos.");
+                alert("Preencha todos os campos.");
                 return;
             }
 
@@ -60,7 +60,7 @@
         window.enviarInventario = async function () {
             if (!confirm("Tem certeza que deseja enviar o inventário?")) return;
             
-            let dados = [];
+            let csvContent = "Empresa;Código;Descrição;LOTE;Tipo de Estoque;Quantidade Sistêmica;Quantidade Física\n";
             let camposValidos = true;
 
             document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
@@ -72,26 +72,38 @@
                     return;
                 }
 
-                dados.push({
-                    empresa: row.cells[0].innerText,
-                    codigo: row.cells[1].innerText,
-                    descricao: row.cells[2].innerText,
-                    lote: row.cells[3].innerText,
-                    tipoEstoque: row.cells[4].innerText,
-                    quantidadeSistemica: row.cells[5].innerText,
-                    quantidadeFisica: parseInt(quantidadeFisica)
-                });
+                csvContent += [
+                    row.cells[0].innerText,
+                    row.cells[1].innerText,
+                    row.cells[2].innerText,
+                    row.cells[3].innerText,
+                    row.cells[4].innerText,
+                    row.cells[5].innerText,
+                    quantidadeFisica
+                ].join(";") + "\n";
             });
 
             if (!camposValidos) return;
 
-            try {
-                await addDoc(collection(db, "inventarios"), { dados, timestamp: new Date() });
+            let data = new Date().toISOString().split('T')[0];
+            let fileName = `${usuarioAtual}_${data}.csv`;
+            let blob = new Blob([csvContent], { type: "text/csv" });
+
+            let formData = new FormData();
+            formData.append("file", blob, fileName);
+
+            // Enviar o arquivo por e-mail
+            emailjs.send("seu_service_id", "seu_template_id", {
+                to_email: "jeanmm03@gmail.com",
+                from_email: "seuemail@gmail.com",
+                subject: "Relatório de Inventário",
+                message: "Segue em anexo o inventário atualizado.",
+            }, "seu_user_id")
+            .then(response => {
                 alert("Inventário enviado com sucesso!");
-                limparCampos();
-            } catch (error) {
-                alert("Erro ao enviar inventário: " + error.message);
-            }
+                logout();
+            })
+            .catch(error => alert("Erro ao enviar e-mail: " + error.message));
         };
 
         function limparCampos() {
@@ -99,16 +111,13 @@
         }
 
         window.validarInputNumerico = function (event) {
-            let value = event.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+            let value = event.target.value.replace(/\D/g, '');
             event.target.value = value;
         };
     </script>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
     <h1 class="text-4xl text-white absolute top-10">INVENTÁRIO DE SANTA</h1>
-    <div class="absolute top-4 left-4">
-        <img src="https://i.imgur.com/Gj00JsZ.png" alt="Logo" width="150" height="100">
-    </div>
 
     <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black">
         <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
@@ -139,15 +148,6 @@
                     <td class="p-2">Lote 1</td>
                     <td class="p-2">Normal</td>
                     <td class="p-2">100</td>
-                    <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
-                </tr>
-                <tr>
-                    <td class="p-2">Empresa B</td>
-                    <td class="p-2">67890</td>
-                    <td class="p-2">Produto Y</td>
-                    <td class="p-2">Lote 2</td>
-                    <td class="p-2">Reserva</td>
-                    <td class="p-2">50</td>
                     <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
                 </tr>
             </tbody>
