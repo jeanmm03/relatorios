@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Inventário</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script type="module">
-        // Importando os SDKs necessários
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
 
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC80cnUTN5Tclnej8gG2godC4ekJnt5m9o",
             authDomain: "validacaods.firebaseapp.com",
@@ -22,37 +20,97 @@
             measurementId: "G-NZE3B7P847"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Função de login
         window.login = async function () {
             var usuario = document.getElementById("usuario").value;
             var senha = document.getElementById("senha").value;
 
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, usuario, senha);
-                alert("Login realizado com sucesso!");
-                window.location.href = "relatorio.html"; // Redireciona para a página de relatórios
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("inventario").style.display = "block";
             } catch (error) {
                 alert("Erro ao fazer login: " + error.message);
             }
         };
+
+        window.enviarInventario = function () {
+            if (confirm("Tem certeza que deseja enviar o inventário?")) {
+                let dados = [];
+                document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
+                    let empresa = row.cells[0].innerText;
+                    let codigo = row.cells[1].innerText;
+                    let descricao = row.cells[2].innerText;
+                    let lote = row.cells[3].innerText;
+                    let tipoEstoque = row.cells[4].innerText;
+                    let quantidadeSistemica = row.cells[5].innerText;
+                    let quantidadeFisica = row.cells[6].querySelector("input").value;
+
+                    if (quantidadeFisica === "") {
+                        alert("Preencha todas as quantidades físicas!");
+                        return;
+                    }
+
+                    dados.push({ empresa, codigo, descricao, lote, tipoEstoque, quantidadeSistemica, quantidadeFisica });
+                });
+
+                // Simulação de envio para e-mail
+                alert("Inventário enviado com sucesso!");
+                console.log("Dados enviados:", JSON.stringify(dados));
+            }
+        };
     </script>
 </head>
-<body class="flex items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
-    <!-- Título centralizado -->
-    <h1 class="text-4xl text-white absolute top-10">RELATÓRIOS BI DE SANTA</h1>
-
-    <div class="absolute top-4 left-4">
-        <img src="https://i.imgur.com/Gj00JsZ.png" alt="Logo" width="150" height="100">
+<body class="flex items-center justify-center h-screen bg-gray-900 text-white">
+    <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black">
+        <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
+        <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3">
+        <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4">
+        <button onclick="login()" class="w-full bg-black text-white py-2 rounded">Entrar</button>
     </div>
-    <div class="bg-white p-8 rounded-lg shadow-lg w-80">
-        <h2 class="text-center text-2xl font-semibold mb-4 text-gray-700">Login</h2>
-        <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <button onclick="login()" class="w-full bg-black text-white py-2 rounded hover:bg-gray-600 transition-all">Entrar</button>
+
+    <div id="inventario" class="hidden">
+        <h1 class="text-3xl text-center mb-4">Inventário</h1>
+        <table id="inventario-table" class="table-auto w-full text-black bg-white p-4 rounded-lg">
+            <thead>
+                <tr class="bg-gray-800 text-white">
+                    <th class="p-2">Empresa</th>
+                    <th class="p-2">Código</th>
+                    <th class="p-2">Descrição</th>
+                    <th class="p-2">LOTE</th>
+                    <th class="p-2">Tipo de Estoque</th>
+                    <th class="p-2">Quantidade Sistêmica</th>
+                    <th class="p-2">Quantidade Física</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="p-2">Empresa A</td>
+                    <td class="p-2">12345</td>
+                    <td class="p-2">Produto X</td>
+                    <td class="p-2">Lote 1</td>
+                    <td class="p-2">Normal</td>
+                    <td class="p-2">100</td>
+                    <td class="p-2"><input type="number" class="border p-1 w-full"></td>
+                </tr>
+                <tr>
+                    <td class="p-2">Empresa B</td>
+                    <td class="p-2">67890</td>
+                    <td class="p-2">Produto Y</td>
+                    <td class="p-2">Lote 2</td>
+                    <td class="p-2">Reserva</td>
+                    <td class="p-2">50</td>
+                    <td class="p-2"><input type="number" class="border p-1 w-full"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="flex justify-center mt-4">
+            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Cancelar</button>
+            <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
+        </div>
     </div>
 </body>
 </html>
