@@ -11,13 +11,13 @@
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyC80cnUTN5Tclnej8gG2godC4ekJnt5m9o",
-            authDomain: "validacaods.firebaseapp.com",
-            projectId: "https://validacaods-default-rtdb.firebaseio.com",
-            storageBucket: "validacaods",
-            messagingSenderId: "validacaods.firebasestorage.app",
-            appId: "1:773528438416:web:562714951406695be3ba15",
-            measurementId: "G-NZE3B7P847"
+            apiKey: "AIzaSyBgxo7mOrCZHG548ix4Dyt6l59BVHFQGIc",
+            authDomain: "bico-50fcb.firebaseapp.com",
+            databaseURL: "https://bico-50fcb.firebaseio.com",
+            projectId: "bico-50fcb",
+            storageBucket: "bico-50fcb.firebasestorage.app",
+            messagingSenderId: "692292502017",
+            appId: "1:692292502017:web:5c1ea810be1378e877f600"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -135,7 +135,7 @@
 
         <div class="flex justify-center mt-4">
             <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2">Sair</button>
-            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Cancelar</button>
+            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Reset</button>
             <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
         </div>
     </div>
