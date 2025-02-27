@@ -21,6 +21,40 @@
             }).validarUsuario(usuario, senha);
         }
     </script>
+    <script type="module">
+  // Importa os módulos do Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // Configuração do Firebase (substitua pelos seus dados do Firebase)
+  const firebaseConfig = {
+    apiKey: "SUA-CHAVE-API",
+    authDomain: "SEU-PROJETO.firebaseapp.com",
+    projectId: "SEU-PROJETO",
+    storageBucket: "SEU-PROJETO.appspot.com",
+    messagingSenderId: "SEU-ID",
+    appId: "SUA-ID"
+  };
+
+  // Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Função de Login
+  window.login = function () {
+    var email = document.getElementById("usuario").value;
+    var senha = document.getElementById("senha").value;
+
+    signInWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        window.location.href = "relatorio.html"; // Redireciona após login bem-sucedido
+      })
+      .catch((error) => {
+        alert("Erro ao fazer login: " + error.message);
+      });
+  };
+</script>
+
 </head>
 <body class="flex items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
     <!-- Título centralizado -->
