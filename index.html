@@ -5,46 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        function login() {
+
+    <script type="module">
+        // Importando os SDKs necessários
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC80cnUTN5Tclnej8gG2godC4ekJnt5m9o",
+            authDomain: "validacaods.firebaseapp.com",
+            projectId: "validacaods",
+            storageBucket: "validacaods.appspot.com",
+            messagingSenderId: "773528438416",
+            appId: "1:773528438416:web:562714951406695be3ba15",
+            measurementId: "G-NZE3B7P847"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Função de login
+        window.login = async function () {
             var usuario = document.getElementById("usuario").value;
             var senha = document.getElementById("senha").value;
-            var navegador = navigator.userAgent;
 
-            google.script.run.withSuccessHandler(function(link) {
-                if (link) {
-                    google.script.run.registrarAcesso(usuario, navegador, link);
-                    window.location.href = link;
-                } else {
-                    alert("Usuário ou senha incorretos!");
-                }
-            }).validarUsuario(usuario, senha);
-        }
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, usuario, senha);
+                alert("Login realizado com sucesso!");
+                window.location.href = "relatorio.html"; // Redireciona para a página de relatórios
+            } catch (error) {
+                alert("Erro ao fazer login: " + error.message);
+            }
+        };
     </script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyC80cnUTN5Tclnej8gG2godC4ekJnt5m9o",
-    authDomain: "validacaods.firebaseapp.com",
-    projectId: "validacaods",
-    storageBucket: "validacaods.firebasestorage.app",
-    messagingSenderId: "773528438416",
-    appId: "1:773528438416:web:562714951406695be3ba15",
-    measurementId: "G-NZE3B7P847"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-
 </head>
 <body class="flex items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
     <!-- Título centralizado -->
@@ -55,7 +50,7 @@
     </div>
     <div class="bg-white p-8 rounded-lg shadow-lg w-80">
         <h2 class="text-center text-2xl font-semibold mb-4 text-gray-700">Login</h2>
-        <input type="text" id="usuario" placeholder="Usuário" class="w-full p-2 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
         <button onclick="login()" class="w-full bg-black text-white py-2 rounded hover:bg-gray-600 transition-all">Entrar</button>
     </div>
