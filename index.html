@@ -28,15 +28,23 @@
             if (user) {
                 document.getElementById("login-form").classList.add("hidden");
                 document.getElementById("inventario").classList.remove("hidden");
+                limparCampos();
             } else {
                 document.getElementById("login-form").classList.remove("hidden");
                 document.getElementById("inventario").classList.add("hidden");
+                document.getElementById("usuario").value = "";
+                document.getElementById("senha").value = "";
             }
         });
 
         window.login = async function () {
-            var usuario = document.getElementById("usuario").value;
-            var senha = document.getElementById("senha").value;
+            var usuario = document.getElementById("usuario").value.trim();
+            var senha = document.getElementById("senha").value.trim();
+
+            if (usuario === "" || senha === "") {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
 
             try {
                 await signInWithEmailAndPassword(auth, usuario, senha);
@@ -56,12 +64,14 @@
             let camposValidos = true;
 
             document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
-                let quantidadeFisica = row.cells[6].querySelector("input").value;
-                if (quantidadeFisica === "" || quantidadeFisica < 0) {
-                    alert("Preencha todas as quantidades físicas corretamente!");
+                let quantidadeFisica = row.cells[6].querySelector("input").value.trim();
+                
+                if (quantidadeFisica === "" || isNaN(quantidadeFisica) || parseInt(quantidadeFisica) < 0) {
+                    alert("Preencha corretamente todas as quantidades físicas com números positivos.");
                     camposValidos = false;
                     return;
                 }
+
                 dados.push({
                     empresa: row.cells[0].innerText,
                     codigo: row.cells[1].innerText,
@@ -69,7 +79,7 @@
                     lote: row.cells[3].innerText,
                     tipoEstoque: row.cells[4].innerText,
                     quantidadeSistemica: row.cells[5].innerText,
-                    quantidadeFisica: quantidadeFisica
+                    quantidadeFisica: parseInt(quantidadeFisica)
                 });
             });
 
@@ -78,9 +88,19 @@
             try {
                 await addDoc(collection(db, "inventarios"), { dados, timestamp: new Date() });
                 alert("Inventário enviado com sucesso!");
+                limparCampos();
             } catch (error) {
                 alert("Erro ao enviar inventário: " + error.message);
             }
+        };
+
+        function limparCampos() {
+            document.querySelectorAll("#inventario-table tbody tr input").forEach(input => input.value = "");
+        }
+
+        window.validarInputNumerico = function (event) {
+            let value = event.target.value.replace(/\D/g, ''); // Remove qualquer caractere que não seja número
+            event.target.value = value;
         };
     </script>
 </head>
@@ -119,7 +139,7 @@
                     <td class="p-2">Lote 1</td>
                     <td class="p-2">Normal</td>
                     <td class="p-2">100</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0" required></td>
+                    <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
                 </tr>
                 <tr>
                     <td class="p-2">Empresa B</td>
@@ -128,7 +148,7 @@
                     <td class="p-2">Lote 2</td>
                     <td class="p-2">Reserva</td>
                     <td class="p-2">50</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0" required></td>
+                    <td class="p-2"><input type="text" class="border p-1 w-full" oninput="validarInputNumerico(event)"></td>
                 </tr>
             </tbody>
         </table>
