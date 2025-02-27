@@ -41,91 +41,53 @@
             }
         };
 
-        window.enviarInventario = function () {
-            if (confirm("Tem certeza que deseja enviar o inventário?")) {
-                let dados = [];
-                document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
-                    let quantidadeFisica = row.cells[6].querySelector("input").value;
+        window.recuperarSenha = function () {
+            document.getElementById("reset-popup").style.display = "flex";
+        };
 
-                    if (quantidadeFisica === "" || quantidadeFisica < 0 || isNaN(quantidadeFisica)) {
-                        alert("Preencha todos os campos corretamente! Use 0 se não houver item.");
-                        return;
-                    }
+        window.fecharPopup = function () {
+            document.getElementById("reset-popup").style.display = "none";
+        };
 
-                    let empresa = row.cells[0].innerText;
-                    let codigo = row.cells[1].innerText;
-                    let descricao = row.cells[2].innerText;
-                    let lote = row.cells[3].innerText;
-                    let tipoEstoque = row.cells[4].innerText;
-                    let quantidadeSistemica = row.cells[5].innerText;
-
-                    dados.push({ empresa, codigo, descricao, lote, tipoEstoque, quantidadeSistemica, quantidadeFisica });
-                });
-
-                // Simulação de salvamento em CSV e envio de e-mail
-                alert("Inventário enviado com sucesso!");
-                console.log("Dados enviados:", JSON.stringify(dados));
-
-                // Após envio, sair do sistema
-                window.location.reload();
+        window.enviarEmailRecuperacao = function () {
+            var email = document.getElementById("reset-email").value;
+            if (!email) {
+                alert("Por favor, informe um e-mail.");
+                return;
             }
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    alert("Um e-mail de recuperação foi enviado. Verifique sua caixa de entrada.");
+                    fecharPopup();
+                })
+                .catch((error) => {
+                    alert("Erro ao recuperar a senha. Verifique se o e-mail está cadastrado.");
+                });
         };
     </script>
 </head>
 <body class="flex items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
     <h1 class="text-4xl text-white absolute top-10">INVENTÁRIO DE SANTA</h1>
 
-    <!-- Logo carregada do GitHub -->
-    <div class="absolute top-4 left-4">
-        <img src="https://raw.githubusercontent.com/seu-usuario/seu-repositorio/main/logo.png" alt="Logo" width="150" height="100">
-    </div>
-
     <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black">
         <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
         <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3">
         <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4">
         <button onclick="login()" class="w-full bg-black text-white py-2 rounded">Entrar</button>
+
+        <!-- Link para recuperação de senha -->
+        <p class="text-center text-blue-600 mt-2 cursor-pointer" onclick="recuperarSenha()">Esqueci a senha</p>
     </div>
 
-    <div id="inventario" class="hidden">
-        <h1 class="text-3xl text-center mb-4">Inventário</h1>
-        <table id="inventario-table" class="table-auto w-full text-black bg-white p-4 rounded-lg">
-            <thead>
-                <tr class="bg-gray-800 text-white">
-                    <th class="p-2">Empresa</th>
-                    <th class="p-2">Código</th>
-                    <th class="p-2">Descrição</th>
-                    <th class="p-2">LOTE</th>
-                    <th class="p-2">Tipo de Estoque</th>
-                    <th class="p-2">Quantidade Sistêmica</th>
-                    <th class="p-2">Quantidade Física</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="p-2">Empresa A</td>
-                    <td class="p-2">12345</td>
-                    <td class="p-2">Produto X</td>
-                    <td class="p-2">Lote 1</td>
-                    <td class="p-2">Normal</td>
-                    <td class="p-2">100</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0"></td>
-                </tr>
-                <tr>
-                    <td class="p-2">Empresa B</td>
-                    <td class="p-2">67890</td>
-                    <td class="p-2">Produto Y</td>
-                    <td class="p-2">Lote 2</td>
-                    <td class="p-2">Reserva</td>
-                    <td class="p-2">50</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0"></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="flex justify-center mt-4">
-            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded mr-2">Cancelar</button>
-            <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
+    <div id="reset-popup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Recuperar Senha</h2>
+            <input type="email" id="reset-email" placeholder="Digite seu e-mail" class="w-full p-2 border rounded mb-3">
+            <div class="flex justify-end">
+                <button onclick="fecharPopup()" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Cancelar</button>
+                <button onclick="enviarEmailRecuperacao()" class="bg-blue-600 text-white px-4 py-2 rounded">Enviar</button>
+            </div>
         </div>
     </div>
 </body>
