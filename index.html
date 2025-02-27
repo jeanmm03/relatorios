@@ -83,7 +83,6 @@
             }
         };
 
-        // Função para resetar os campos da tabela
         window.resetCampos = function () {
             document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
                 row.cells[6].querySelector("input").value = "";  // Limpa o campo "Quantidade Física"
@@ -91,20 +90,20 @@
         };
     </script>
 </head>
-<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black">
-    <h1 class="text-4xl text-white absolute top-10">INVENTÁRIO DE SANTA</h1>
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-black via-gray-800 to-black px-4 md:px-0">
+    <h1 class="text-4xl text-white absolute top-10 md:text-left text-center w-full">INVENTÁRIO DE SANTA</h1>
     <div class="absolute top-4 left-4">
         <img src="https://i.imgur.com/Gj00JsZ.png" alt="Logo" width="150" height="100">
     </div>
 
-    <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black">
+    <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black w-full max-w-md mx-auto">
         <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
         <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3">
         <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4">
         <button onclick="login()" class="w-full bg-black text-white py-2 rounded">Entrar</button>
     </div>
 
-    <div id="inventario" class="hidden bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
+    <div id="inventario" class="hidden bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
         <h1 class="text-3xl text-center mb-4">Inventário</h1>
         <table id="inventario-table" class="table-fixed w-full text-black bg-white p-4 rounded-lg border">
             <thead>
@@ -140,8 +139,9 @@
             </tbody>
         </table>
 
-        <div class="flex justify-center mt-4">
-            <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2">Sair</button>
+        <div class="flex flex-col sm:flex-row justify-center mt-4">
+            <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2 mb-2 sm:mb-0">Sair</button>
+
             <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
         </div>
     </div>
