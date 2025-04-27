@@ -52,7 +52,11 @@
       }).then(() => {
         gapi.client.request({
           path: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`,
-        }).then(callback);
+        }).then(callback).catch(error => {
+          console.error("Erro ao carregar dados da planilha: ", error);
+        });
+      }).catch(error => {
+        console.error("Erro ao inicializar a API do Google Sheets: ", error);
       });
     }
 
@@ -97,9 +101,10 @@
     window.onload = function() {
       gapi.load("client", () => {
         console.log("API Google carregada.");
-        carregarPlanilha(() => {});
+        carregarPlanilha(() => {});  // Inicializa a API corretamente
       });
     };
   </script>
 </body>
 </html>
+
