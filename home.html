@@ -5,40 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Home</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Carregar a biblioteca cliente do Google -->
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    let gapiLoaded = false;
-
-    // Função para carregar a API do Google
-    function loadGapi() {
-      gapi.load('client:auth2', initGapi);
-    }
-
-    function initGapi() {
-      gapi.client.init({
-        apiKey: 'AIzaSyD_GlsTUCO4jc7XYuS5G_8jAtg_36XMXdI',  // Atualize com a sua chave de API
-        clientId: '718214825018-fo7r83mriekkt2rbhmk9t6pd9gjjm2pa.apps.googleusercontent.com',  // Atualize com o seu client ID
-        scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
-        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-      }).then(function () {
-        gapiLoaded = true;
-      });
-    }
-
-    // Função de login
-    function loginGoogle() {
-      gapi.auth2.getAuthInstance().signIn().then(function() {
-        // Se o login for bem-sucedido, chame a função para buscar dados na planilha
-        buscarCarga();
-      });
-    }
-
-    // Carregar o GAPI ao carregar a página
-    window.onload = loadGapi;
-  </script>
-  
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6 relative">
@@ -122,11 +88,9 @@
       let inputId = tipo === 'cadastrar' ? 'numeroCargaCadastrar' : 'numeroCargaRegistrar';
       let botaoId = tipo === 'cadastrar' ? 'botaoCadastrar' : 'botaoRegistrar';
       const input = document.getElementById(inputId);
-      
-      // Remove qualquer caractere não numérico
+
       input.value = input.value.replace(/\D/g, '');
-      
-      // Se o campo não estiver vazio, mostra o botão
+
       if (input.value.length > 0) {
         document.getElementById(botaoId).classList.remove('hidden');
       } else {
@@ -139,7 +103,7 @@
         document.getElementById('numeroCargaCadastrar').value : 
         document.getElementById('numeroCargaRegistrar').value;
 
-      if (numeroCarga.length === 10) {
+      if (numeroCarga) {
         sessionStorage.setItem('numeroCarga', numeroCarga);
 
         if (tipo === 'cadastrar') {
@@ -148,7 +112,7 @@
           window.location.href = "conferencia.html"; 
         }
       } else {
-        alert('Por favor, informe um número de carga válido com 10 dígitos.');
+        alert('Por favor, informe o número da carga.');
       }
     }
 
@@ -163,7 +127,6 @@
 
     function logout() {
       sessionStorage.clear();
-      localStorage.clear();  // Limpa também o localStorage do nome do usuário
       window.location.href = "index.html";
     }
   </script>
@@ -176,48 +139,6 @@
         }
     </script>
 
-  <script>
-    // Função para buscar carga na planilha Google
-    function buscarCarga() {
-      const numeroCarga = sessionStorage.getItem('numeroCarga');
-      const sheetId = 'ID_DA_SUA_PLANILHA';  // Atualize com o ID da sua planilha
-      const range = 'QRCode_Cargas!A:A'; // Supondo que a carga esteja na coluna A
-
-      gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: range,
-      }).then(function(response) {
-        const data = response.result.values;
-        let cargaEncontrada = false;
-        let contador = 0;
-
-        // Verifica se a carga está na planilha
-        if (data) {
-          data.forEach(function(row) {
-            if (row[0] === numeroCarga) {
-              cargaEncontrada = true;
-              contador++;
-            }
-          });
-
-          if (cargaEncontrada) {
-            const confirmacao = confirm(`Para a carga ${numeroCarga}, existem ${contador} códigos a serem auditados.\n\nDeseja continuar?`);
-            if (confirmacao) {
-              window.location.href = "conferencia.html"; // Segue para escanear código
-            } else {
-              window.location.href = "home.html"; // Volta para home
-            }
-          } else {
-            alert('A carga não foi localizada.');
-          }
-        }
-      }).catch(function(error) {
-        console.log('Erro ao acessar a planilha:', error);
-        alert('Erro ao acessar a planilha. Tente novamente.');
-      });
-    }
-  </script>
-  
   <script>
     // Sistema de inatividade
     let tempoInativo;
