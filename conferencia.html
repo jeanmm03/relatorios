@@ -12,10 +12,16 @@
     
     <h2 class="text-2xl font-bold text-center text-gray-800">Conferência de Carga</h2>
 
+    <!-- Exibe o nome do usuário -->
+    <div id="user-name" class="text-center mb-4 text-lg text-gray-700">
+        Usuário: <span id="nome-usuario"></span>
+    </div>
+
     <!-- Número da carga -->
     <div class="space-y-4">
-      <label for="numeroCarga" class="block text-sm font-medium text-gray-700">Número da Carga</label>
-      <input type="text" id="numeroCarga" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200" disabled>
+        <label for="numeroCargaConferencia" class="block text-sm font-medium text-gray-700">Número da Carga</label>
+        <input type="text" id="numeroCargaConferencia" disabled
+          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200" />
       
       <button id="botaoEscanear" onclick="iniciarEscaneamento()" class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
         Escanear Código
@@ -54,13 +60,7 @@
     let scanner = null;
 
     function iniciarEscaneamento() {
-      numeroCarga = prompt("Digite o número da carga:");
-      if (numeroCarga) {
-        document.getElementById('numeroCarga').value = numeroCarga;
         iniciarQRCodeScanner();
-      } else {
-        alert("Número da carga não informado.");
-      }
     }
 
     function iniciarQRCodeScanner() {
@@ -152,6 +152,26 @@
     document.onscroll = resetarTempo;
     document.onclick = resetarTempo;
   </script>
+
+    <script>
+        // Obtém o nome do usuário do localStorage e exibe
+        const nomeUsuario = localStorage.getItem('usuarioNome');
+        if (nomeUsuario) {
+        document.getElementById('nome-usuario').textContent = nomeUsuario;
+        }
+    </script>
+
+    <script>
+        window.onload = function() {
+        // Recuperar o número da carga armazenado em sessionStorage
+        const numeroCarga = sessionStorage.getItem('numeroCarga');
+        
+        // Se o número da carga for encontrado, exibi-lo no campo de input
+        if (numeroCarga) {
+            document.getElementById('numeroCargaConferencia').value = numeroCarga;
+        }
+        }
+    </script>
 
 </body>
 </html>
