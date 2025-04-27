@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
     <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Conferência de Palete - 3M</h2>
     
-    <form class="space-y-5" onsubmit="event.preventDefault(); window.location.href='home.html';">
+    <form id="loginForm" class="space-y-5" onsubmit="event.preventDefault(); validarLogin();">
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Login</label>
         <input type="email" id="email" name="email" required
@@ -32,11 +33,68 @@
         Entrar
       </button>
     </form>
+
+    <!-- Mensagem de erro -->
+    <div id="error-message" class="mt-4 hidden text-red-500 text-sm text-center">
+      Login ou senha inválidos.
+    </div>
   </div>
 
   <script>
-    // Caso queira validar login e senha antes de redirecionar,
-    // podemos colocar a lógica aqui no futuro!
+    const apiKey = "AIzaSyD_GlsTUCO4jc7XYuS5G_8jAtg_36XMXdI";  // Substitua com sua API Key
+    const spreadsheetId = "13KW4kKBXwc9zM2fnahbOJINg1Xx3OC2sCMjIFE2zXyM"; // ID da planilha
+    const range = "Usuarios!A:B";  // Supondo que login esteja na coluna A e senha na B
+
+    // Função para carregar dados da planilha
+    function carregarPlanilha(callback) {
+      gapi.client.init({
+        apiKey: apiKey,
+      }).then(() => {
+        gapi.client.request({
+          path: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`,
+        }).then(callback);
+      });
+    }
+
+    // Função para validar login e senha
+    function validarLogin() {
+      const login = document.getElementById("email").value;
+      const senha = document.getElementById("password").value;
+
+      console.log("Tentando fazer login com:", login, senha);  // Log para depuração
+
+      // Carrega os dados da planilha
+      carregarPlanilha((response) => {
+        const data = response.result.values;
+        console.log("Dados da planilha:", data);  // Log para verificar o conteúdo da planilha
+        let usuarioValido = false;
+
+        // Verificar se o login e senha conferem com algum usuário na planilha
+        for (let i = 0; i < data.length; i++) {
+          if (data[i][0] === login && data[i][1] === senha) {
+            usuarioValido = true;
+            break;
+          }
+        }
+
+        // Se o login for válido, redireciona para a página principal
+        if (usuarioValido) {
+          window.location.href = "home.html";  // Redireciona para a página principal
+        } else {
+          // Exibir mensagem de erro se login ou senha forem inválidos
+          const errorMessage = document.getElementById("error-message");
+          errorMessage.classList.remove("hidden");
+        }
+      });
+    }
+
+    // Carrega a API do Google Sheets quando a página for carregada
+    window.onload = function() {
+      gapi.load("client", () => {
+        console.log("API Google carregada.");
+        carregarPlanilha(() => {});
+      });
+    };
   </script>
 </body>
 </html>
