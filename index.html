@@ -41,9 +41,9 @@
   </div>
 
   <script>
-    const apiKey = "SUA_API_KEY_AQUI";  // Substitua com sua API Key
+    const apiKey = "AIzaSyD_GlsTUCO4jc7XYuS5G_8jAtg_36XMXdI";  // Substitua com sua API Key
     const spreadsheetId = "13KW4kKBXwc9zM2fnahbOJINg1Xx3OC2sCMjIFE2zXyM"; // ID da planilha
-    const range = "Usuarios!A:B";  // Supondo que login esteja na coluna A e senha na B
+    const range = "Usuarios!A:C";  // A nova faixa agora inclui a coluna C para o nome
 
     // Função para carregar dados da planilha
     function carregarPlanilha(callback) {
@@ -59,5 +59,47 @@
     // Função para validar login e senha
     function validarLogin() {
       const login = document.getElementById("email").value;
-      const senha = document.getElementBy
+      const senha = document.getElementById("password").value;
 
+      console.log("Tentando fazer login com:", login, senha);  // Log para depuração
+
+      // Carrega os dados da planilha
+      carregarPlanilha((response) => {
+        const data = response.result.values;
+        console.log("Dados da planilha:", data);  // Log para verificar o conteúdo da planilha
+
+        let usuarioValido = false;
+        let nomeUsuario = '';
+
+        // Verificar se o login e senha conferem com algum usuário na planilha
+        for (let i = 0; i < data.length; i++) {
+          if (data[i][0] === login && data[i][1] === senha) {
+            usuarioValido = true;
+            nomeUsuario = data[i][2]; // Nome do usuário está na coluna C
+            break;
+          }
+        }
+
+        // Se o login for válido, redireciona para a página principal
+        if (usuarioValido) {
+          // Armazenar o nome do usuário no localStorage
+          localStorage.setItem('usuarioNome', nomeUsuario);
+          window.location.href = "home.html";  // Redireciona para a página principal
+        } else {
+          // Exibir mensagem de erro se login ou senha forem inválidos
+          const errorMessage = document.getElementById("error-message");
+          errorMessage.classList.remove("hidden");  // Torna a mensagem visível
+        }
+      });
+    }
+
+    // Carrega a API do Google Sheets quando a página for carregada
+    window.onload = function() {
+      gapi.load("client", () => {
+        console.log("API Google carregada.");
+        carregarPlanilha(() => {});
+      });
+    };
+  </script>
+</body>
+</html>
