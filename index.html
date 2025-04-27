@@ -1,153 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventário</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyCWsWJF7d8Si21dNSQVIiI62Z7JUa6qeyE",
-          authDomain: "inventario-a44dc.firebaseapp.com",
-          projectId: "inventario-a44dc",
-          storageBucket: "inventario-a44dc.firebasestorage.app",
-          messagingSenderId: "366447746544",
-          appId: "1:366447746544:web:5d084422312e04d2d65135",
-          measurementId: "G-6L3LKYQGV0"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById("login-form").classList.add("hidden");
-                document.getElementById("inventario").classList.remove("hidden");
-            } else {
-                document.getElementById("login-form").classList.remove("hidden");
-                document.getElementById("inventario").classList.add("hidden");
-            }
-        });
-
-        window.login = async function () {
-            var usuario = document.getElementById("usuario").value;
-            var senha = document.getElementById("senha").value;
-
-            try {
-                await signInWithEmailAndPassword(auth, usuario, senha);
-            } catch (error) {
-                alert("Erro ao fazer login: " + error.message);
-            }
-        };
-
-        window.logout = async function () {
-            await signOut(auth);
-        };
-
-        window.enviarInventario = async function () {
-            if (!confirm("Tem certeza que deseja enviar o inventário?")) return;
-            
-            let dados = [];
-            let camposValidos = true;
-
-            document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
-                let quantidadeFisica = row.cells[6].querySelector("input").value;
-                if (quantidadeFisica === "" || quantidadeFisica < 0) {
-                    alert("Preencha todas as quantidades físicas corretamente!");
-                    camposValidos = false;
-                    return;
-                }
-                dados.push({
-                    empresa: row.cells[0].innerText,
-                    codigo: row.cells[1].innerText,
-                    descricao: row.cells[2].innerText,
-                    lote: row.cells[3].innerText,
-                    tipoEstoque: row.cells[4].innerText,
-                    quantidadeSistemica: row.cells[5].innerText,
-                    quantidadeFisica: quantidadeFisica
-                });
-            });
-
-            if (!camposValidos) return;
-
-            try {
-                await addDoc(collection(db, "inventarios"), { dados, timestamp: new Date() });
-                alert("Inventário enviado com sucesso!");
-            } catch (error) {
-                alert("Erro ao enviar inventário: " + error.message);
-            }
-        };
-
-        window.resetCampos = function () {
-            document.querySelectorAll("#inventario-table tbody tr").forEach(row => {
-                row.cells[6].querySelector("input").value = "";  // Limpa o campo "Quantidade Física"
-            });
-        };
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex flex-col items-center justify-start h-screen bg-gradient-to-r from-black via-gray-800 to-black px-4 md:px-0">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Conferência de Palete - 3M</h2>
+    
+    <form class="space-y-5" onsubmit="event.preventDefault(); window.location.href='home.html';">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Login</label>
+        <input type="email" id="email" name="email" required
+          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200">
+      </div>
+      
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+        <input type="password" id="password" name="password" required
+          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200">
+      </div>
+      
+      <div class="flex justify-end">
+        <a href="#" class="text-sm text-yellow-500 hover:underline">Esqueceu a senha?</a>
+      </div>
+      
+      <button type="submit"
+        class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+        Entrar
+      </button>
+    </form>
+  </div>
 
-<div style="background-color: black; height: 89px; width: 100%; display: flex; justify-content: center; align-items: center;"
-
-    <div class="mt-4">
-        <img src="https://imgur.com/ItJvym9.png" alt="Logo">
-    </div>
-</body>
-
-    <div id="login-form" class="bg-white p-8 rounded-lg shadow-lg text-black w-full max-w-md mx-auto">
-        <h2 class="text-center text-2xl font-semibold mb-4">INVENTÁRIO DE SANTA</h2>
-        <h2 class="text-center text-2xl font-semibold mb-4">Login</h2>
-        <input type="text" id="usuario" placeholder="Usuário (E-mail)" class="w-full p-2 border rounded mb-3">
-        <input type="password" id="senha" placeholder="Senha" class="w-full p-2 border rounded mb-4">
-        <button onclick="login()" class="w-full bg-black text-white py-2 rounded">Entrar</button>
-    </div>
-
-    <div id="inventario" class="hidden bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
-        <h1 class="text-3xl text-center mb-4">Inventário</h1>
-        <table id="inventario-table" class="table-fixed w-full text-black bg-white p-4 rounded-lg border">
-            <thead>
-                <tr class="bg-gray-800 text-white">
-                    <th class="p-2">Empresa</th>
-                    <th class="p-2">Código</th>
-                    <th class="p-2">Descrição</th>
-                    <th class="p-2">LOTE</th>
-                    <th class="p-2">Tipo de Estoque</th>
-                    <th class="p-2">Quantidade Sistêmica</th>
-                    <th class="p-2">Quantidade Física</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="p-2">Empresa A</td>
-                    <td class="p-2">12345</td>
-                    <td class="p-2">Produto X</td>
-                    <td class="p-2">Lote 1</td>
-                    <td class="p-2">Normal</td>
-                    <td class="p-2">100</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0" required></td>
-                </tr>
-                <tr>
-                    <td class="p-2">Empresa B</td>
-                    <td class="p-2">67890</td>
-                    <td class="p-2">Produto Y</td>
-                    <td class="p-2">Lote 2</td>
-                    <td class="p-2">Reserva</td>
-                    <td class="p-2">50</td>
-                    <td class="p-2"><input type="number" class="border p-1 w-full" min="0" required></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="flex flex-col sm:flex-row justify-center mt-4">
-            <button onclick="logout()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2 mb-2 sm:mb-0">Sair</button>
-
-            <button onclick="enviarInventario()" class="bg-green-600 text-white px-4 py-2 rounded">Enviar</button>
-        </div>
-    </div>
+  <script>
+    // Caso queira validar login e senha antes de redirecionar,
+    // podemos colocar a lógica aqui no futuro!
+  </script>
 </body>
 </html>
