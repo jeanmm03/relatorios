@@ -7,102 +7,155 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6 relative">
 
     <h2 class="text-2xl font-bold text-center text-gray-800">Menu Principal</h2>
 
-    <div class="space-y-4">
-      <button onclick="mostrarCampo('cadastrar')" 
-        class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
-        Cadastrar Conferência
-      </button>
-
-      <button onclick="mostrarCampo('registrar')" 
-        class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
-        Registrar Conferência
+    <!-- Botão de Logout -->
+    <div class="absolute top-4 right-4">
+      <button onclick="logout()" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 active:scale-95 transition transform duration-150 ease-in-out">
+        Logout
       </button>
     </div>
 
-    <div id="formulario" class="hidden space-y-4 pt-4">
-      <div>
-        <label for="numeroCarga" class="block text-sm font-medium text-gray-700" id="tituloCampo">Número da Carga</label>
-        <input type="text" id="numeroCarga" maxlength="10" oninput="validarNumero(this)" 
-          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200">
+    <!-- Exibe o nome do usuário -->
+    <div id="user-name" class="text-center mb-4 text-lg text-gray-700">
+        Bem-vindo, <span id="nome-usuario"></span>
+    </div>
+
+    <div class="space-y-4">
+      <div id="areaCadastrar">
+        <button onclick="mostrarCampo('cadastrar')" 
+          class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Cadastrar Conferência
+        </button>
+
+        <!-- Formulário para Cadastrar -->
+        <div id="formularioCadastrar" class="hidden space-y-4 pt-4">
+          <div>
+            <label for="numeroCargaCadastrar" class="block text-sm font-medium text-gray-700">Número da Carga</label>
+            <input type="text" id="numeroCargaCadastrar" maxlength="10" oninput="validarNumero('cadastrar')" 
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200">
+          </div>
+
+          <button id="botaoCadastrar" class="hidden w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out" onclick="acaoBotao('cadastrar')">
+            Registrar Carga
+          </button>
+        </div>
       </div>
 
-      <button id="botaoAcao" class="hidden w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out" onclick="acaoBotao()">
-        <!-- Texto será alterado dinamicamente -->
-      </button>
+      <div id="areaRegistrar">
+        <button onclick="mostrarCampo('registrar')" 
+          class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Registrar Conferência
+        </button>
+
+        <!-- Formulário para Registrar -->
+        <div id="formularioRegistrar" class="hidden space-y-4 pt-4">
+          <div>
+            <label for="numeroCargaRegistrar" class="block text-sm font-medium text-gray-700">Número da Carga</label>
+            <input type="text" id="numeroCargaRegistrar" maxlength="10" oninput="validarNumero('registrar')" 
+              class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200">
+          </div>
+
+          <button id="botaoRegistrar" class="hidden w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out" onclick="acaoBotao('registrar')">
+            Buscar Carga
+          </button>
+        </div>
+      </div>
     </div>
 
   </div>
 
   <script>
-    let tipoOperacao = '';
-
     function mostrarCampo(tipo) {
-      tipoOperacao = tipo;
-      document.getElementById('formulario').classList.remove('hidden');
-      document.getElementById('numeroCarga').value = '';
-      document.getElementById('botaoAcao').classList.add('hidden');
+      // Esconde ambos os formulários primeiro
+      document.getElementById('formularioCadastrar').classList.add('hidden');
+      document.getElementById('formularioRegistrar').classList.add('hidden');
+
+      if (tipo === 'cadastrar') {
+        document.getElementById('numeroCargaCadastrar').value = '';
+        document.getElementById('botaoCadastrar').classList.add('hidden');
+        document.getElementById('formularioCadastrar').classList.remove('hidden');
+      } else if (tipo === 'registrar') {
+        document.getElementById('numeroCargaRegistrar').value = '';
+        document.getElementById('botaoRegistrar').classList.add('hidden');
+        document.getElementById('formularioRegistrar').classList.remove('hidden');
+      }
     }
 
-    function validarNumero(input) {
+    function validarNumero(tipo) {
+      let inputId = tipo === 'cadastrar' ? 'numeroCargaCadastrar' : 'numeroCargaRegistrar';
+      let botaoId = tipo === 'cadastrar' ? 'botaoCadastrar' : 'botaoRegistrar';
+      const input = document.getElementById(inputId);
+
       input.value = input.value.replace(/\D/g, '');
 
       if (input.value.length > 0) {
-        const botao = document.getElementById('botaoAcao');
-        botao.classList.remove('hidden');
-        botao.textContent = tipoOperacao === 'cadastrar' ? 'Registrar Carga' : 'Buscar Carga';
-      }
-    }
-
-    function acaoBotao() {
-      if (tipoOperacao === 'cadastrar') {
-        mostrarPopupCadastro();
+        document.getElementById(botaoId).classList.remove('hidden');
       } else {
-        // Aqui você pode colocar outra ação para "Buscar Carga" se quiser no futuro
-        alert('Função Buscar Carga ainda não implementada.');
+        document.getElementById(botaoId).classList.add('hidden');
       }
     }
 
-    function acaoBotao() {
-      if (tipoOperacao === 'cadastrar') {
-        mostrarPopupCadastro();
-      } else if (tipoOperacao === 'registrar') {
-        window.location.href = "conferencia.html"; // Redireciona direto para a página
+    function acaoBotao(tipo) {
+      const numeroCarga = tipo === 'cadastrar' ? 
+        document.getElementById('numeroCargaCadastrar').value : 
+        document.getElementById('numeroCargaRegistrar').value;
+
+      if (numeroCarga) {
+        sessionStorage.setItem('numeroCarga', numeroCarga);
+
+        if (tipo === 'cadastrar') {
+          mostrarPopupCadastro();
+        } else if (tipo === 'registrar') {
+          window.location.href = "conferencia.html"; 
+        }
+      } else {
+        alert('Por favor, informe o número da carga.');
       }
     }
 
     function mostrarPopupCadastro() {
       const confirmacao = confirm("Carga cadastrada com sucesso!\n\nDeseja iniciar cadastro de ID?");
-      
       if (confirmacao) {
-        window.location.href = "conferencia.html"; // Ir para a página de conferência
+        window.location.href = "conferencia.html";
       } else {
-        window.location.href = "home.html"; // Voltar ao menu
+        window.location.href = "home.html";
       }
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = "index.html";
     }
   </script>
 
     <script>
-        let tempoInativo;
-    
-        function resetarTempo() {
-        clearTimeout(tempoInativo);
-        tempoInativo = setTimeout(() => {
-            alert("Sessão expirada por inatividade. Você será redirecionado para a página inicial.");
-            window.location.href = "index.html";
-        }, 30 * 60 * 1000); // 30 minutos
+        // Obtém o nome do usuário do localStorage e exibe
+        const nomeUsuario = localStorage.getItem('usuarioNome');
+        if (nomeUsuario) {
+        document.getElementById('nome-usuario').textContent = nomeUsuario;
         }
-    
-        // Atividades que reiniciam o contador
-        window.onload = resetarTempo;
-        document.onmousemove = resetarTempo;
-        document.onkeypress = resetarTempo;
-        document.onscroll = resetarTempo;
-        document.onclick = resetarTempo;
     </script>
-  
+
+  <script>
+    // Sistema de inatividade
+    let tempoInativo;
+
+    function resetarTempo() {
+      clearTimeout(tempoInativo);
+      tempoInativo = setTimeout(() => {
+        alert("Sessão expirada por inatividade. Você será redirecionado para a página inicial.");
+        window.location.href = "index.html";
+      }, 30 * 60 * 1000); // 30 minutos
+    }
+
+    window.onload = resetarTempo;
+    document.onmousemove = resetarTempo;
+    document.onkeypress = resetarTempo;
+    document.onscroll = resetarTempo;
+    document.onclick = resetarTempo;
+  </script>
 </body>
 </html>
