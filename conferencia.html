@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conferência de Carga</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6">
+    
+    <h2 class="text-2xl font-bold text-center text-gray-800">Conferência de Carga</h2>
+
+    <!-- Número da carga -->
+    <div class="space-y-4">
+      <label for="numeroCarga" class="block text-sm font-medium text-gray-700">Número da Carga</label>
+      <input type="text" id="numeroCarga" class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200" disabled>
+      
+      <button id="botaoEscanear" onclick="iniciarEscaneamento()" class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+        Escanear Código
+      </button>
+      
+      <!-- Opções após escanear o código -->
+      <div id="opcoes" class="hidden space-y-4 pt-4">
+        <button onclick="escaneandoProximo()" class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Escanear Próximo
+        </button>
+        <button onclick="finalizarConferencia()" class="w-full bg-green-400 text-black py-2 rounded-lg hover:bg-green-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Finalizar
+        </button>
+      </div>
+      
+      <!-- Finalização -->
+      <div id="finalizacao" class="hidden space-y-4 pt-4">
+        <p id="resumo" class="text-gray-700 text-center">Foram cadastrados 0 códigos para a carga.</p>
+        <button onclick="enviarDados()" class="w-full bg-blue-400 text-white py-2 rounded-lg hover:bg-blue-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Enviar Dados
+        </button>
+        <button onclick="resetarConferencia()" class="w-full bg-red-400 text-white py-2 rounded-lg hover:bg-red-500 active:scale-95 transition transform duration-150 ease-in-out">
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Área para escanear o QR Code -->
+    <div id="qrCodeReader" class="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg mt-6 hidden"></div>
+
+  </div>
+
+  <script>
+    let numeroCarga = '';
+    let codigosEscaneados = 0;
+    let scanner = null;
+
+    function iniciarEscaneamento() {
+      numeroCarga = prompt("Digite o número da carga:");
+      if (numeroCarga) {
+        document.getElementById('numeroCarga').value = numeroCarga;
+        iniciarQRCodeScanner();
+      } else {
+        alert("Número da carga não informado.");
+      }
+    }
+
+    function iniciarQRCodeScanner() {
+      document.getElementById('botaoEscanear').classList.add('hidden');
+      document.getElementById('qrCodeReader').classList.remove('hidden');
+
+      if (!scanner) {
+        scanner = new Html5Qrcode("qrCodeReader");
+      }
+
+      scanner.start(
+        { facingMode: "environment" }, 
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          alert("Código escaneado: " + decodedText);
+          codigosEscaneados++;
+          document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
+          
+          // Parar o scanner para mostrar opções
+          scanner.stop().then(() => {
+            document.getElementById('qrCodeReader').classList.add('hidden');
+            document.getElementById('opcoes').classList.remove('hidden');
+          });
+        },
+        (errorMessage) => {
+          // Pode ignorar erros pequenos de leitura
+        }
+      ).catch((err) => {
+        console.error("Erro ao iniciar scanner: ", err);
+      });
+    }
+
+    function escaneandoProximo() {
+      document.getElementById('opcoes').classList.add('hidden');
+      document.getElementById('qrCodeReader').classList.remove('hidden');
+      
+      scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          alert("Código escaneado: " + decodedText);
+          codigosEscaneados++;
+          document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
+          
+          scanner.stop().then(() => {
+            document.getElementById('qrCodeReader').classList.add('hidden');
+            document.getElementById('opcoes').classList.remove('hidden');
+          });
+        },
+        (errorMessage) => {
+          // Ignora erros
+        }
+      );
+    }
+
+    function finalizarConferencia() {
+      document.getElementById('opcoes').classList.add('hidden');
+      document.getElementById('finalizacao').classList.remove('hidden');
+    }
+
+    function enviarDados() {
+      alert(`Dados da carga ${numeroCarga} enviados com sucesso! Total de códigos: ${codigosEscaneados}`);
+      resetarConferencia();
+    }
+
+    function resetarConferencia() {
+      window.location.href = "home.html";
+    }
+  </script>
+
+  <script>
+    let tempoInativo;
+    function resetarTempo() {
+      clearTimeout(tempoInativo);
+      tempoInativo = setTimeout(() => {
+        alert("Sessão expirada por inatividade. Você será redirecionado para a página inicial.");
+        window.location.href = "index.html";
+      }, 30 * 60 * 1000); // 30 minutos
+    }
+    window.onload = resetarTempo;
+    document.onmousemove = resetarTempo;
+    document.onkeypress = resetarTempo;
+    document.onscroll = resetarTempo;
+    document.onclick = resetarTempo;
+  </script>
+
+</body>
+</html>
