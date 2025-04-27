@@ -122,10 +122,12 @@
       let inputId = tipo === 'cadastrar' ? 'numeroCargaCadastrar' : 'numeroCargaRegistrar';
       let botaoId = tipo === 'cadastrar' ? 'botaoCadastrar' : 'botaoRegistrar';
       const input = document.getElementById(inputId);
-
-      input.value = input.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
-
-      if (input.value.length === 10) {
+      
+      // Remove qualquer caractere não numérico
+      input.value = input.value.replace(/\D/g, '');
+      
+      // Se o campo não estiver vazio, mostra o botão
+      if (input.value.length > 0) {
         document.getElementById(botaoId).classList.remove('hidden');
       } else {
         document.getElementById(botaoId).classList.add('hidden');
