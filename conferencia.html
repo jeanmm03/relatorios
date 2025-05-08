@@ -18,7 +18,6 @@
       </button>
     </div>
 
-    
     <!-- Exibe o nome do usuário -->
     <div id="user-name" class="text-center mb-4 text-lg text-gray-700">
         Usuário: <span id="nome-usuario"></span>
@@ -65,6 +64,7 @@
     let numeroCarga = '';
     let codigosEscaneados = 0;
     let scanner = null;
+    let codigosEscaneadosLista = [];
 
     function iniciarEscaneamento() {
         iniciarQRCodeScanner();
@@ -86,6 +86,7 @@
         },
         (decodedText) => {
           alert("Código escaneado: " + decodedText);
+          codigosEscaneadosLista.push(decodedText);
           codigosEscaneados++;
           document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
           
@@ -115,6 +116,7 @@
         },
         (decodedText) => {
           alert("Código escaneado: " + decodedText);
+          codigosEscaneadosLista.push(decodedText);
           codigosEscaneados++;
           document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
           
@@ -135,50 +137,61 @@
     }
 
     function enviarDados() {
-      alert(`Dados da carga ${numeroCarga} enviados com sucesso! Total de códigos: ${codigosEscaneados}`);
-      resetarConferencia();
+      const usuario = localStorage.getItem('usuarioNome') || 'Desconhecido';
+      const dataHora = new Date().toLocaleString();
+
+      const payload = {
+        numeroCarga: numeroCarga,
+        codigos: codigosEscaneadosLista,
+        login: usuario,
+        dataHora: dataHora
+      };
+    
+      fetch("https://script.google.com/macros/s/SEU_SCRIPT_ID/exec", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => response.text())
+      .then(result => {
+        if (result.startsWith("ERRO")) {
+          alert("Erro: Nenhum dos códigos escaneados foi encontrado na planilha. Verifique e tente novamente.");
+        } else {
+          alert(result);
+          resetarConferencia();
+        }
+      })
+      .catch(error => {
+        console.error("Erro ao enviar dados:", error);
+        alert("Erro ao enviar dados.");
+      });
     }
 
     function resetarConferencia() {
       window.location.href = "home.html";
     }
+
+    // Obtém o nome do usuário do localStorage e exibe
+    const nomeUsuario = localStorage.getItem('usuarioNome');
+    if (nomeUsuario) {
+      document.getElementById('nome-usuario').textContent = nomeUsuario;
+    }
   </script>
 
   <script>
-    let tempoInativo;
-    function resetarTempo() {
-      clearTimeout(tempoInativo);
-      tempoInativo = setTimeout(() => {
-        alert("Sessão expirada por inatividade. Você será redirecionado para a página inicial.");
-        window.location.href = "index.html";
-      }, 30 * 60 * 1000); // 30 minutos
+    window.onload = function() {
+      // Recuperar o número da carga armazenado em sessionStorage
+      const numeroCarga = sessionStorage.getItem('numeroCarga');
+      
+      // Se o número da carga for encontrado, exibi-lo no campo de input
+      if (numeroCarga) {
+          document.getElementById('numeroCargaConferencia').value = numeroCarga;
+      }
     }
-    window.onload = resetarTempo;
-    document.onmousemove = resetarTempo;
-    document.onkeypress = resetarTempo;
-    document.onscroll = resetarTempo;
-    document.onclick = resetarTempo;
   </script>
-
-    <script>
-        // Obtém o nome do usuário do localStorage e exibe
-        const nomeUsuario = localStorage.getItem('usuarioNome');
-        if (nomeUsuario) {
-        document.getElementById('nome-usuario').textContent = nomeUsuario;
-        }
-    </script>
-
-    <script>
-        window.onload = function() {
-        // Recuperar o número da carga armazenado em sessionStorage
-        const numeroCarga = sessionStorage.getItem('numeroCarga');
-        
-        // Se o número da carga for encontrado, exibi-lo no campo de input
-        if (numeroCarga) {
-            document.getElementById('numeroCargaConferencia').value = numeroCarga;
-        }
-        }
-    </script>
 
 </body>
 </html>
+
