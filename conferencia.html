@@ -183,13 +183,14 @@
   <script>
     window.onload = function() {
       // Recuperar o número da carga armazenado em sessionStorage
-      const numeroCarga = sessionStorage.getItem('numeroCarga');
+      const carga = sessionStorage.getItem('numeroCarga');
       
-      // Se o número da carga for encontrado, exibi-lo no campo de input
-      if (numeroCarga) {
-          document.getElementById('numeroCargaConferencia').value = numeroCarga;
+      if (carga) {
+        document.getElementById('numeroCargaConferencia').value = carga;
+        numeroCarga = carga;  // ATUALIZA a variável global!
       }
     }
+
   </script>
 
 </body>
