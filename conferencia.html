@@ -1,198 +1,288 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conferência de Carga</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6">
-    
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6 relative">
+
     <h2 class="text-2xl font-bold text-center text-gray-800">Conferência de Carga</h2>
-    
+
     <div class="absolute top-4 right-4">
-      <button onclick="window.location.href='home.html'" class="w-full bg-gray-500 text-black py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95 transition transform duration-150 ease-in-out">
+      <button
+        onclick="window.location.href='home.html'"
+        class="w-full bg-gray-500 text-black py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95 transition transform duration-150 ease-in-out"
+      >
         Voltar
       </button>
     </div>
 
     <!-- Exibe o nome do usuário -->
     <div id="user-name" class="text-center mb-4 text-lg text-gray-700">
-        Usuário: <span id="nome-usuario"></span>
+      Usuário: <span id="nome-usuario"></span>
     </div>
 
     <!-- Número da carga -->
     <div class="space-y-4">
-        <label for="numeroCargaConferencia" class="block text-sm font-medium text-gray-700">Número da Carga</label>
-        <input type="text" id="numeroCargaConferencia" disabled
-          class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200" />
-      
-      <button id="botaoEscanear" onclick="iniciarEscaneamento()" class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+      <label for="numeroCargaConferencia" class="block text-sm font-medium text-gray-700"
+        >Número da Carga</label
+      >
+      <input
+        type="text"
+        id="numeroCargaConferencia"
+        disabled
+        class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none transition duration-200"
+      />
+
+      <button
+        id="botaoEscanear"
+        onclick="iniciarEscaneamento()"
+        class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out"
+      >
         Escanear Código
       </button>
-      
+
+      <!-- Área para mensagens de feedback -->
+      <p id="mensagemFeedback" class="text-center text-yellow-700 font-semibold mt-2 min-h-[1.5rem]"></p>
+
       <!-- Opções após escanear o código -->
       <div id="opcoes" class="hidden space-y-4 pt-4">
-        <button onclick="escaneandoProximo()" class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out">
+        <button
+          onclick="escaneandoProximo()"
+          class="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-500 active:scale-95 transition transform duration-150 ease-in-out"
+        >
           Escanear Próximo
         </button>
-        <button onclick="finalizarConferencia()" class="w-full bg-green-400 text-black py-2 rounded-lg hover:bg-green-500 active:scale-95 transition transform duration-150 ease-in-out">
+        <button
+          onclick="finalizarConferencia()"
+          class="w-full bg-green-400 text-black py-2 rounded-lg hover:bg-green-500 active:scale-95 transition transform duration-150 ease-in-out"
+        >
           Finalizar
         </button>
       </div>
-      
+
       <!-- Finalização -->
       <div id="finalizacao" class="hidden space-y-4 pt-4">
-        <p id="resumo" class="text-gray-700 text-center">Foram cadastrados 0 códigos para a carga.</p>
-        <button onclick="enviarDados()" class="w-full bg-blue-400 text-white py-2 rounded-lg hover:bg-blue-500 active:scale-95 transition transform duration-150 ease-in-out">
+        <p id="resumo" class="text-gray-700 text-center">
+          Foram cadastrados 0 códigos para a carga.
+        </p>
+        <button
+          onclick="enviarDados()"
+          class="w-full bg-blue-400 text-white py-2 rounded-lg hover:bg-blue-500 active:scale-95 transition transform duration-150 ease-in-out"
+        >
           Enviar Dados
         </button>
-        <button onclick="resetarConferencia()" class="w-full bg-red-400 text-white py-2 rounded-lg hover:bg-red-500 active:scale-95 transition transform duration-150 ease-in-out">
+        <button
+          onclick="resetarConferencia()"
+          class="w-full bg-red-400 text-white py-2 rounded-lg hover:bg-red-500 active:scale-95 transition transform duration-150 ease-in-out"
+        >
           Reset
         </button>
       </div>
     </div>
 
     <!-- Área para escanear o QR Code -->
-    <div id="qrCodeReader" class="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg mt-6 hidden"></div>
-
+    <div
+      id="qrCodeReader"
+      class="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg mt-6 hidden"
+    ></div>
   </div>
 
   <script>
-    let numeroCarga = '';
-    let codigosEscaneados = 0;
-    let scanner = null;
+    let numeroCarga = "";
     let codigosEscaneadosLista = [];
+    let scanner = null;
 
-    function iniciarEscaneamento() {
-        iniciarQRCodeScanner();
+    // Elementos
+    const botaoEscanear = document.getElementById("botaoEscanear");
+    const qrCodeReader = document.getElementById("qrCodeReader");
+    const opcoes = document.getElementById("opcoes");
+    const finalizacao = document.getElementById("finalizacao");
+    const resumo = document.getElementById("resumo");
+    const mensagemFeedback = document.getElementById("mensagemFeedback");
+
+    // Função para mostrar mensagem de feedback
+    function mostrarMensagem(msg) {
+      mensagemFeedback.textContent = msg;
     }
 
-    function iniciarQRCodeScanner() {
-      document.getElementById('botaoEscanear').classList.add('hidden');
-      document.getElementById('qrCodeReader').classList.remove('hidden');
+    // Limpa mensagem
+    function limparMensagem() {
+      mensagemFeedback.textContent = "";
+    }
+
+    async function iniciarEscaneamento() {
+      limparMensagem();
+      botaoEscanear.classList.add("hidden");
+      qrCodeReader.classList.remove("hidden");
+      opcoes.classList.add("hidden");
+      finalizacao.classList.add("hidden");
 
       if (!scanner) {
         scanner = new Html5Qrcode("qrCodeReader");
       }
 
-      scanner.start(
-        { facingMode: "environment" }, 
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        (decodedText) => {
-          alert("Código escaneado: " + decodedText);
-          codigosEscaneadosLista.push(decodedText);
-          codigosEscaneados++;
-          document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
-          
-          // Parar o scanner para mostrar opções
-          scanner.stop().then(() => {
-            document.getElementById('qrCodeReader').classList.add('hidden');
-            document.getElementById('opcoes').classList.remove('hidden');
-          });
-        },
-        (errorMessage) => {
-          // Pode ignorar erros pequenos de leitura
-        }
-      ).catch((err) => {
-        console.error("Erro ao iniciar scanner: ", err);
-      });
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            if (codigosEscaneadosLista.includes(decodedText)) {
+              mostrarMensagem("Código já escaneado. Por favor, tente outro.");
+              return;
+            }
+            codigosEscaneadosLista.push(decodedText);
+            resumo.textContent = `Foram cadastrados ${codigosEscaneadosLista.length} códigos para a carga ${numeroCarga}.`;
+            mostrarMensagem(`Código escaneado: ${decodedText}`);
+
+            // Parar scanner para mostrar opções
+            scanner
+              .stop()
+              .then(() => {
+                qrCodeReader.classList.add("hidden");
+                opcoes.classList.remove("hidden");
+              })
+              .catch((e) => {
+                console.error("Erro ao parar scanner:", e);
+              });
+          },
+          (errorMessage) => {
+            // Erros pequenos ignorados silenciosamente
+          }
+        );
+      } catch (err) {
+        mostrarMensagem(
+          "Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões."
+        );
+        console.error("Erro ao iniciar scanner:", err);
+        botaoEscanear.classList.remove("hidden");
+        qrCodeReader.classList.add("hidden");
+      }
     }
 
-    function escaneandoProximo() {
-      document.getElementById('opcoes').classList.add('hidden');
-      document.getElementById('qrCodeReader').classList.remove('hidden');
-      
-      scanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        (decodedText) => {
-          alert("Código escaneado: " + decodedText);
-          codigosEscaneadosLista.push(decodedText);
-          codigosEscaneados++;
-          document.getElementById('resumo').textContent = `Foram cadastrados ${codigosEscaneados} códigos para a carga ${numeroCarga}.`;
-          
-          scanner.stop().then(() => {
-            document.getElementById('qrCodeReader').classList.add('hidden');
-            document.getElementById('opcoes').classList.remove('hidden');
-          });
-        },
-        (errorMessage) => {
-          // Ignora erros
-        }
-      );
+    async function escaneandoProximo() {
+      limparMensagem();
+      opcoes.classList.add("hidden");
+      qrCodeReader.classList.remove("hidden");
+
+      if (!scanner) {
+        scanner = new Html5Qrcode("qrCodeReader");
+      }
+
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            if (codigosEscaneadosLista.includes(decodedText)) {
+              mostrarMensagem("Código já escaneado. Por favor, tente outro.");
+              return;
+            }
+            codigosEscaneadosLista.push(decodedText);
+            resumo.textContent = `Foram cadastrados ${codigosEscaneadosLista.length} códigos para a carga ${numeroCarga}.`;
+            mostrarMensagem(`Código escaneado: ${decodedText}`);
+
+            scanner
+              .stop()
+              .then(() => {
+                qrCodeReader.classList.add("hidden");
+                opcoes.classList.remove("hidden");
+              })
+              .catch((e) => {
+                console.error("Erro ao parar scanner:", e);
+              });
+          },
+          (errorMessage) => {
+            // ignora pequenos erros
+          }
+        );
+      } catch (err) {
+        mostrarMensagem(
+          "Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões."
+        );
+        console.error("Erro ao iniciar scanner:", err);
+        botaoEscanear.classList.remove("hidden");
+        qrCodeReader.classList.add("hidden");
+      }
     }
 
     function finalizarConferencia() {
-      document.getElementById('opcoes').classList.add('hidden');
-      document.getElementById('finalizacao').classList.remove('hidden');
+      limparMensagem();
+      opcoes.classList.add("hidden");
+      finalizacao.classList.remove("hidden");
     }
 
     function enviarDados() {
-      const usuario = localStorage.getItem('usuarioNome') || 'Desconhecido';
+      if (codigosEscaneadosLista.length === 0) {
+        mostrarMensagem("Nenhum código foi escaneado para enviar.");
+        return;
+      }
+
+      mostrarMensagem("Enviando dados...");
+
+      const usuario = localStorage.getItem("usuarioNome") || "Desconhecido";
       const dataHora = new Date().toLocaleString();
 
       const payload = {
         numeroCarga: numeroCarga,
         codigos: codigosEscaneadosLista,
         login: usuario,
-        dataHora: dataHora
+        dataHora: dataHora,
       };
-    
-      fetch("https://script.google.com/macros/s/AKfycbyTW1e7ugEcLdzOobwzIL_1sXeOcdd0dF8HhBipSBtbqMO9imkWGQSeyGvu2wA_400R/exec", {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json"
+
+      fetch(
+        "https://script.google.com/macros/s/AKfycbyTW1e7ugEcLdzOobwzIL_1sXeOcdd0dF8HhBipSBtbqMO9imkWGQSeyGvu2wA_400R/exec",
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .then(response => response.text())
-      .then(result => {
-        if (result.startsWith("ERRO")) {
-          alert("Erro: Nenhum dos códigos escaneados foi encontrado na planilha. Verifique e tente novamente.");
-        } else {
-          alert(result);
-          resetarConferencia();
-        }
-      })
-      .catch(error => {
-        console.error("Erro ao enviar dados:", error);
-        alert("Erro ao enviar dados.");
-      });
+      )
+        .then((response) => response.text())
+        .then((result) => {
+          if (result.startsWith("ERRO")) {
+            mostrarMensagem(
+              "Erro: Nenhum dos códigos escaneados foi encontrado na planilha. Verifique e tente novamente."
+            );
+          } else {
+            alert(result);
+            resetarConferencia();
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao enviar dados:", error);
+          mostrarMensagem("Erro ao enviar dados.");
+        });
     }
 
     function resetarConferencia() {
+      if (scanner) {
+        scanner.stop().catch(() => {});
+      }
       window.location.href = "home.html";
     }
 
-    // Obtém o nome do usuário do localStorage e exibe
-    const nomeUsuario = localStorage.getItem('usuarioNome');
+    // Exibe nome do usuário, se houver
+    const nomeUsuario = localStorage.getItem("usuarioNome");
     if (nomeUsuario) {
-      document.getElementById('nome-usuario').textContent = nomeUsuario;
+      document.getElementById("nome-usuario").textContent = nomeUsuario;
     }
-  </script>
 
-  <script>
-    window.onload = function() {
+    window.onload = function () {
       // Recuperar o número da carga armazenado em sessionStorage
-      const carga = sessionStorage.getItem('numeroCarga');
-      
+      const carga = sessionStorage.getItem("numeroCarga");
+
       if (carga) {
-        document.getElementById('numeroCargaConferencia').value = carga;
-        numeroCarga = carga;  // ATUALIZA a variável global!
+        document.getElementById("numeroCargaConferencia").value = carga;
+        numeroCarga = carga;
       }
-    }
-
+    };
   </script>
-
 </body>
 </html>
-
