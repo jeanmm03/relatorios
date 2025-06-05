@@ -225,7 +225,7 @@
       mostrarMensagem("Enviando dados...");
 
       const usuario = localStorage.getItem("usuarioNome") || "Desconhecido";
-      const dataHora = new Date().toLocaleString();
+      const dataHora = new Date().toISOString();
 
       const payload = {
         numeroCarga: numeroCarga,
@@ -234,8 +234,7 @@
         dataHora: dataHora,
       };
 
-      fetch(
-        "https://script.google.com/macros/s/AKfycbyTW1e7ugEcLdzOobwzIL_1sXeOcdd0dF8HhBipSBtbqMO9imkWGQSeyGvu2wA_400R/exec",
+      fetch("https://script.google.com/macros/s/AKfycbwL_MSt2drIFVqpx0NC1rYm7HDLF1tHOqiMnkaG31kg9U68ZZG18VRZ9hkW8W4yYKFf/exec",
         {
           method: "POST",
           body: JSON.stringify(payload),
