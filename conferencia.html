@@ -21,16 +21,12 @@
       </button>
     </div>
 
-    <!-- Exibe o nome do usuário -->
     <div id="user-name" class="text-center mb-4 text-lg text-gray-700">
       Usuário: <span id="nome-usuario"></span>
     </div>
 
-    <!-- Número da carga -->
     <div class="space-y-4">
-      <label for="numeroCargaConferencia" class="block text-sm font-medium text-gray-700"
-        >Número da Carga</label
-      >
+      <label for="numeroCargaConferencia" class="block text-sm font-medium text-gray-700">Número da Carga</label>
       <input
         type="text"
         id="numeroCargaConferencia"
@@ -46,10 +42,8 @@
         Escanear Código
       </button>
 
-      <!-- Área para mensagens de feedback -->
       <p id="mensagemFeedback" class="text-center text-yellow-700 font-semibold mt-2 min-h-[1.5rem]"></p>
 
-      <!-- Opções após escanear o código -->
       <div id="opcoes" class="hidden space-y-4 pt-4">
         <button
           onclick="escaneandoProximo()"
@@ -65,7 +59,6 @@
         </button>
       </div>
 
-      <!-- Finalização -->
       <div id="finalizacao" class="hidden space-y-4 pt-4">
         <p id="resumo" class="text-gray-700 text-center">
           Foram cadastrados 0 códigos para a carga.
@@ -85,11 +78,7 @@
       </div>
     </div>
 
-    <!-- Área para escanear o QR Code -->
-    <div
-      id="qrCodeReader"
-      class="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg mt-6 hidden"
-    ></div>
+    <div id="qrCodeReader" class="w-full h-64 bg-gray-100 border border-gray-300 rounded-lg mt-6 hidden"></div>
   </div>
 
   <script>
@@ -97,7 +86,6 @@
     let codigosEscaneadosLista = [];
     let scanner = null;
 
-    // Elementos
     const botaoEscanear = document.getElementById("botaoEscanear");
     const qrCodeReader = document.getElementById("qrCodeReader");
     const opcoes = document.getElementById("opcoes");
@@ -105,12 +93,10 @@
     const resumo = document.getElementById("resumo");
     const mensagemFeedback = document.getElementById("mensagemFeedback");
 
-    // Função para mostrar mensagem de feedback
     function mostrarMensagem(msg) {
       mensagemFeedback.textContent = msg;
     }
 
-    // Limpa mensagem
     function limparMensagem() {
       mensagemFeedback.textContent = "";
     }
@@ -139,25 +125,14 @@
             resumo.textContent = `Foram cadastrados ${codigosEscaneadosLista.length} códigos para a carga ${numeroCarga}.`;
             mostrarMensagem(`Código escaneado: ${decodedText}`);
 
-            // Parar scanner para mostrar opções
-            scanner
-              .stop()
-              .then(() => {
-                qrCodeReader.classList.add("hidden");
-                opcoes.classList.remove("hidden");
-              })
-              .catch((e) => {
-                console.error("Erro ao parar scanner:", e);
-              });
-          },
-          (errorMessage) => {
-            // Erros pequenos ignorados silenciosamente
+            scanner.stop().then(() => {
+              qrCodeReader.classList.add("hidden");
+              opcoes.classList.remove("hidden");
+            }).catch((e) => console.error("Erro ao parar scanner:", e));
           }
         );
       } catch (err) {
-        mostrarMensagem(
-          "Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões."
-        );
+        mostrarMensagem("Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões.");
         console.error("Erro ao iniciar scanner:", err);
         botaoEscanear.classList.remove("hidden");
         qrCodeReader.classList.add("hidden");
@@ -186,24 +161,14 @@
             resumo.textContent = `Foram cadastrados ${codigosEscaneadosLista.length} códigos para a carga ${numeroCarga}.`;
             mostrarMensagem(`Código escaneado: ${decodedText}`);
 
-            scanner
-              .stop()
-              .then(() => {
-                qrCodeReader.classList.add("hidden");
-                opcoes.classList.remove("hidden");
-              })
-              .catch((e) => {
-                console.error("Erro ao parar scanner:", e);
-              });
-          },
-          (errorMessage) => {
-            // ignora pequenos erros
+            scanner.stop().then(() => {
+              qrCodeReader.classList.add("hidden");
+              opcoes.classList.remove("hidden");
+            }).catch((e) => console.error("Erro ao parar scanner:", e));
           }
         );
       } catch (err) {
-        mostrarMensagem(
-          "Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões."
-        );
+        mostrarMensagem("Erro ao acessar a câmera ou iniciar o scanner. Verifique permissões.");
         console.error("Erro ao iniciar scanner:", err);
         botaoEscanear.classList.remove("hidden");
         qrCodeReader.classList.add("hidden");
@@ -234,29 +199,21 @@
         dataHora: dataHora,
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbwL_MSt2drIFVqpx0NC1rYm7HDLF1tHOqiMnkaG31kg9U68ZZG18VRZ9hkW8W4yYKFf/exec",
-        {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-        .then((response) => response.text())
-        .then((result) => {
-          if (result.startsWith("ERRO")) {
-            mostrarMensagem(
-              "Erro: Nenhum dos códigos escaneados foi encontrado na planilha. Verifique e tente novamente."
-            );
-          } else {
-            alert(result);
-            resetarConferencia();
-          }
+      fetch("https://script.google.com/macros/s/AKfycbwL_MSt2drIFVqpx0NC1rYm7HDLF1tHOqiMnkaG31kg9U68ZZG18VRZ9hkW8W4yYKFf/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(() => {
+          alert("✅ Dados enviados com sucesso!");
+          resetarConferencia();
         })
         .catch((error) => {
-          console.error("Erro ao enviar dados:", error);
-          mostrarMensagem("Erro ao enviar dados.");
+          console.error("❌ Erro ao enviar dados:", error);
+          mostrarMensagem("Erro ao enviar dados. Verifique a conexão ou permissões.");
         });
     }
 
@@ -267,16 +224,13 @@
       window.location.href = "home.html";
     }
 
-    // Exibe nome do usuário, se houver
     const nomeUsuario = localStorage.getItem("usuarioNome");
     if (nomeUsuario) {
       document.getElementById("nome-usuario").textContent = nomeUsuario;
     }
 
     window.onload = function () {
-      // Recuperar o número da carga armazenado em sessionStorage
       const carga = sessionStorage.getItem("numeroCarga");
-
       if (carga) {
         document.getElementById("numeroCargaConferencia").value = carga;
         numeroCarga = carga;
