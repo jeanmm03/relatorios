@@ -201,20 +201,23 @@
 
       fetch("https://script.google.com/macros/s/AKfycbwL_MSt2drIFVqpx0NC1rYm7HDLF1tHOqiMnkaG31kg9U68ZZG18VRZ9hkW8W4yYKFf/exec", {
         method: "POST",
-        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       })
-        .then(() => {
-          alert("✅ Dados enviados com sucesso!");
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.mensagem);
+        if (data.status === "sucesso") {
           resetarConferencia();
-        })
-        .catch((error) => {
-          console.error("❌ Erro ao enviar dados:", error);
-          mostrarMensagem("Erro ao enviar dados. Verifique a conexão ou permissões.");
-        });
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao enviar dados:", error);
+        mostrarMensagem("Erro ao enviar dados. Verifique a conexão.");
+      });
+
     }
 
     function resetarConferencia() {
